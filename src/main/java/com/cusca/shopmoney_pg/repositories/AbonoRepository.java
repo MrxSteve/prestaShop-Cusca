@@ -36,12 +36,4 @@ public interface AbonoRepository extends JpaRepository<AbonoEntity, Long> {
                                            @Param("fechaInicio") LocalDateTime fechaInicio,
                                            @Param("fechaFin") LocalDateTime fechaFin,
                                            Pageable pageable);
-
-    // Abonos del día
-    @Query("SELECT a FROM AbonoEntity a WHERE DATE(a.fechaAbono) = CURRENT_DATE")
-    Page<AbonoEntity > findAbonosDelDia(Pageable pageable);
-
-    // Abonos del mes actual
-    @Query("SELECT a FROM AbonoEntity a WHERE YEAR(a.fechaAbono) = YEAR(CURRENT_DATE) AND MONTH(a.fechaAbono) = MONTH(CURRENT_DATE)")
-    Page<AbonoEntity > findAbonosDelMes(Pageable pageable);
 }

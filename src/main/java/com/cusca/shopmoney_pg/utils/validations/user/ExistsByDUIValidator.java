@@ -1,4 +1,4 @@
-package com.cusca.shopmoney_pg.utils.validations;
+package com.cusca.shopmoney_pg.utils.validations.user;
 
 import com.cusca.shopmoney_pg.services.auth.IUserService;
 import jakarta.validation.ConstraintValidator;

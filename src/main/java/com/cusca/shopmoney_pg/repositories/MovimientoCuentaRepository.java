@@ -30,12 +30,4 @@ public interface MovimientoCuentaRepository extends JpaRepository<MovimientoCuen
                                                       @Param("fechaInicio") LocalDateTime fechaInicio,
                                                       @Param("fechaFin") LocalDateTime fechaFin,
                                                       Pageable pageable);
-
-    // Movimientos del día
-    @Query("SELECT m FROM MovimientoCuentaEntity m WHERE DATE(m.fechaMovimiento) = CURRENT_DATE")
-    Page<MovimientoCuentaEntity> findMovimientosDelDia(Pageable pageable);
-
-    // Movimientos del mes actual
-    @Query("SELECT m FROM MovimientoCuentaEntity m WHERE YEAR(m.fechaMovimiento) = YEAR(CURRENT_DATE) AND MONTH(m.fechaMovimiento) = MONTH(CURRENT_DATE)")
-    Page<MovimientoCuentaEntity> findMovimientosDelMes(Pageable pageable);
 }
