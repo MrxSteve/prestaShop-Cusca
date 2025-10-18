@@ -18,6 +18,7 @@ import java.time.LocalDateTime;
 public interface UsuarioMapper {
     @Mapping(target = "createdAt", expression = "java(usuario.getCreateUpdateStamp() != null ? usuario.getCreateUpdateStamp().getCreatedAt() : null)")
     @Mapping(target = "updatedAt", expression = "java(usuario.getCreateUpdateStamp() != null ? usuario.getCreateUpdateStamp().getUpdatedAt() : null)")
+    @Mapping(target = "cuentaCliente", ignore = true) // Ignorar para evitar referencia circular
     UsuarioResponse toResponse (UsuarioEntity usuario);
 
     // Request to Entity
