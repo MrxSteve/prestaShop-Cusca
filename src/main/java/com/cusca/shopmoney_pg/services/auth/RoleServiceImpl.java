@@ -4,6 +4,8 @@ import com.cusca.shopmoney_pg.models.dto.request.RolRequest;
 import com.cusca.shopmoney_pg.models.dto.response.RolResponse;
 import com.cusca.shopmoney_pg.models.entities.RolEntity;
 import com.cusca.shopmoney_pg.repositories.RolRepository;
+import com.cusca.shopmoney_pg.utils.exceptions.IntegrityConstraintException;
+import com.cusca.shopmoney_pg.utils.exceptions.ResourceNotFoundException;
 import com.cusca.shopmoney_pg.utils.mappers.RolMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -40,7 +42,7 @@ public class RoleServiceImpl implements IRolService {
 
         // Verificar que no tenga usuarios asignados
         if (!rol.getUsuarios().isEmpty()) {
-            throw new IllegalStateException("No se puede eliminar el rol porque tiene usuarios asignados");
+            throw new IntegrityConstraintException("No se puede eliminar el rol porque tiene usuarios asignados");
         }
 
         rolRepository.delete(rol);
@@ -60,8 +62,9 @@ public class RoleServiceImpl implements IRolService {
 
     @Override
     public Optional<RolResponse> buscarPorNombre(String nombre) {
-        return rolRepository.findByNombreIgnoreCase(nombre)
-                .map(rolMapper::toResponse);
+        RolEntity rol = buscarEntidadPorNombre(nombre);
+        return Optional.of(rolMapper.toResponse(rol));
+
     }
 
     @Override
@@ -72,12 +75,12 @@ public class RoleServiceImpl implements IRolService {
     @Override
     public RolEntity buscarEntidadPorId(Long id) {
         return rolRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol con ID " + id + " no encontrado"));
     }
 
     @Override
     public RolEntity buscarEntidadPorNombre(String nombre) {
         return rolRepository.findByNombreIgnoreCase(nombre)
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado con nombre: " + nombre));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol con nombre " + nombre + " no encontrado"));
     }
 }

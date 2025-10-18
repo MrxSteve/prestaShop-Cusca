@@ -1,5 +1,6 @@
 package com.cusca.shopmoney_pg.models.dto.request;
 
+import com.cusca.shopmoney_pg.utils.validations.role.ExistsByNombre;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -12,5 +13,6 @@ import lombok.Setter;
 public class RolRequest {
     @NotBlank(message = "El nombre del rol es requerido")
     @Size(min = 3, max = 50, message = "El nombre del rol debe tener entre 3 y 50 caracteres")
+    @ExistsByNombre
     private String nombre;
 }
