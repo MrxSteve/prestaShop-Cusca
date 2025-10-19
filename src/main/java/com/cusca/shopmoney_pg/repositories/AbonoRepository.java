@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -29,6 +30,9 @@ public interface AbonoRepository extends JpaRepository<AbonoEntity, Long> {
 
     // Abonos por rango de fechas
     Page<AbonoEntity > findByFechaAbonoBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
+
+    // Abonos por rango de monto
+    Page<AbonoEntity> findByMontoBetween(BigDecimal min, BigDecimal max, Pageable pageable);
 
     // Abonos por cliente y rango de fechas
     @Query("SELECT a FROM AbonoEntity a WHERE a.cuentaCliente.id = :clienteId AND a.fechaAbono BETWEEN :fechaInicio AND :fechaFin")

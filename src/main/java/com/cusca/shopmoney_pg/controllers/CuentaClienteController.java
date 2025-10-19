@@ -150,33 +150,6 @@ public class CuentaClienteController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}/cargar-saldo")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Cargar saldo a cuenta", description = "Realiza un cargo al saldo de la cuenta (Solo ADMIN)")
-    public ResponseEntity<CuentaClienteResponse> cargarSaldo(
-            @PathVariable Long id,
-            @RequestParam BigDecimal monto,
-            @RequestParam String concepto,
-            Authentication authentication) {
-        // TODO: mas adelante
-        String username = authentication.getName();
-
-        CuentaClienteResponse response = cuentaClienteService.cargarSaldo(id, monto, concepto, null);
-        return ResponseEntity.ok(response);
-    }
-
-    @PostMapping("/{id}/abonar-saldo")
-    @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Abonar saldo a cuenta", description = "Realiza un abono al saldo de la cuenta (Solo ADMIN)")
-    public ResponseEntity<CuentaClienteResponse> abonarSaldo(
-            @PathVariable Long id,
-            @RequestParam BigDecimal monto,
-            @RequestParam String concepto,
-            Authentication authentication) {
-        CuentaClienteResponse response = cuentaClienteService.abonarSaldo(id, monto, concepto, null);
-        return ResponseEntity.ok(response);
-    }
-
     @PutMapping("/{id}/activar")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Activar cuenta", description = "Activa una cuenta suspendida (Solo ADMIN)")
