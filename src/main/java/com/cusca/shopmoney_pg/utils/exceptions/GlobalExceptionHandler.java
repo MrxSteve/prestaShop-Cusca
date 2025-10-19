@@ -266,6 +266,31 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
+    // Excepciones de ventas
+    @ExceptionHandler(InvalidSaleTypeException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSaleType(InvalidSaleTypeException ex) {
+        log.warn("Tipo de venta inválido: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
+    @ExceptionHandler(InvalidSaleStateException.class)
+    public ResponseEntity<ErrorResponse> handleInvalidSaleState(InvalidSaleStateException ex) {
+        log.warn("Estado de venta inválido: {}", ex.getMessage());
+        ErrorResponse error = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .status(HttpStatus.BAD_REQUEST.value())
+                .error("Bad Request")
+                .message(ex.getMessage())
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+    }
+
     // Manejo generico de excepciones
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {

@@ -15,7 +15,7 @@ import java.util.List;
 @NoArgsConstructor @AllArgsConstructor
 public class VentaResponse {
     private Long id;
-    private CuentaClienteResponse cuentaCliente;
+    private Long cuentaClienteId;
     private String clienteOcasional;
     private LocalDateTime fechaVenta;
     private BigDecimal subtotal;

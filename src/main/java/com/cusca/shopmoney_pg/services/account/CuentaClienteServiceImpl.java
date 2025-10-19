@@ -192,8 +192,10 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
             return false;
         }
 
-        // Verificar que tenga crédito disponible
-        BigDecimal saldoDisponible = cuenta.getSaldoDisponible();
+        // Calcular saldo disponible manualmente: límite de crédito - saldo actual
+        BigDecimal saldoDisponible = cuenta.getLimiteCredito().subtract(cuenta.getSaldoActual());
+
+        // Verificar que el saldo disponible sea suficiente
         return saldoDisponible.compareTo(montoCompra) >= 0;
     }
 

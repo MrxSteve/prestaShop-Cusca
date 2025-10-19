@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @NoArgsConstructor @AllArgsConstructor
 public class CuentaClienteResponse {
     private Long id;
-    private UsuarioResponse usuario;
+    private Long usuarioId; // Solo el ID en lugar del objeto completo
     private BigDecimal limiteCredito;
     private BigDecimal saldoActual;
     private BigDecimal saldoDisponible;

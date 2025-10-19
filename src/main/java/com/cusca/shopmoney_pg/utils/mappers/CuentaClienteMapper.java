@@ -8,7 +8,7 @@ import org.mapstruct.*;
 
 import java.math.BigDecimal;
 
-@Mapper(componentModel = "spring", uses = {UsuarioMapper.class})
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface CuentaClienteMapper {
     // De Request a Entity
     @Mapping(target = "usuario", ignore = true) // Se asignará manualmente en el service
@@ -19,6 +19,7 @@ public interface CuentaClienteMapper {
     CuentaClienteEntity toEntity(CuentaClienteRequest request);
 
     // De Entity a Response
+    @Mapping(target = "usuarioId", expression = "java(cuentaCliente.getUsuario() != null ? cuentaCliente.getUsuario().getId() : null)")
     @Mapping(target = "saldoDisponible", source = ".", qualifiedByName = "calcularSaldoDisponible")
     CuentaClienteResponse toResponse(CuentaClienteEntity cuentaCliente);
 
@@ -34,6 +35,10 @@ public interface CuentaClienteMapper {
     // Metodo personalizado para calcular saldo disponible
     @Named("calcularSaldoDisponible")
     default BigDecimal calcularSaldoDisponible(CuentaClienteEntity cuentaCliente) {
-        return cuentaCliente.getSaldoDisponible();
+        // Si el campo de la entidad es null, calcularlo manualmente
+        if (cuentaCliente.getSaldoDisponible() != null) {
+            return cuentaCliente.getSaldoDisponible();
+        }
+        return cuentaCliente.getLimiteCredito().subtract(cuentaCliente.getSaldoActual());
     }
 }

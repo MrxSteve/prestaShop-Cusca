@@ -24,5 +24,5 @@ public class UsuarioResponse {
     private LocalDateTime updatedAt;
 
     private List<RolResponse> roles;
-    private CuentaClienteResponse cuentaCliente;
+    private Long cuentaClienteId; // Solo el ID en lugar del objeto completo
 }
