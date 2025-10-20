@@ -7,6 +7,7 @@ import com.cusca.shopmoney_pg.models.entities.AbonoEntity;
 import com.cusca.shopmoney_pg.models.entities.CuentaClienteEntity;
 import com.cusca.shopmoney_pg.models.enums.EstadoAbono;
 import com.cusca.shopmoney_pg.models.enums.MetodoPago;
+import com.cusca.shopmoney_pg.models.enums.TipoReferencia;
 import com.cusca.shopmoney_pg.repositories.AbonoRepository;
 import com.cusca.shopmoney_pg.repositories.CuentaClienteRepository;
 import com.cusca.shopmoney_pg.services.account.ICuentaClienteService;
@@ -51,10 +52,11 @@ public class AbonoServiceImpl implements IAbonoService {
 
         AbonoEntity abonoGuardado = abonoRepository.save(abono);
 
-        // Si el abono está en estado APLICADO, aplicarlo automáticamente a la cuenta
+        // Si el abono está en estado APLICADO, aplicarlo automáticamente a la cuenta con referencia al abono
         if (abonoGuardado.getEstado() == EstadoAbono.APLICADO) {
-            cuentaClienteService.abonarSaldo(cuentaCliente.getId(), abono.getMonto(),
-                    "Abono #" + abonoGuardado.getId(), cuentaCliente.getUsuario().getId());
+            cuentaClienteService.abonarSaldoConReferencia(cuentaCliente.getId(), abono.getMonto(),
+                    "Abono #" + abonoGuardado.getId(), cuentaCliente.getUsuario().getId(),
+                    TipoReferencia.ABONO, abonoGuardado.getId());
         }
 
         return abonoMapper.toResponse(abonoGuardado);
@@ -200,9 +202,10 @@ public class AbonoServiceImpl implements IAbonoService {
             throw new InvalidSaleStateException("El abono no se puede aplicar en su estado actual: " + abono.getEstado());
         }
 
-        // Aplicar el abono a la cuenta del cliente
-        cuentaClienteService.abonarSaldo(abono.getCuentaCliente().getId(), abono.getMonto(),
-                "Aplicación abono #" + abono.getId(), abono.getCuentaCliente().getUsuario().getId());
+        // Aplicar el abono a la cuenta del cliente con referencia al abono
+        cuentaClienteService.abonarSaldoConReferencia(abono.getCuentaCliente().getId(), abono.getMonto(),
+                "Aplicación abono #" + abono.getId(), abono.getCuentaCliente().getUsuario().getId(),
+                TipoReferencia.ABONO, abono.getId());
 
         return cambiarEstado(id, EstadoAbono.APLICADO);
     }

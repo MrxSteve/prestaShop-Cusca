@@ -5,6 +5,7 @@ import com.cusca.shopmoney_pg.models.dto.request.update.UpdateCuentaClienteReque
 import com.cusca.shopmoney_pg.models.dto.response.CuentaClienteResponse;
 import com.cusca.shopmoney_pg.models.entities.CuentaClienteEntity;
 import com.cusca.shopmoney_pg.models.enums.EstadoCuenta;
+import com.cusca.shopmoney_pg.models.enums.TipoReferencia;
 import com.cusca.shopmoney_pg.services.base.BaseService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,10 +31,16 @@ public interface ICuentaClienteService extends BaseService<CuentaClienteResponse
     boolean existePorUsuario(Long usuarioId);
     boolean puedeRealizarCompra(Long cuentaId, BigDecimal montoCompra);
 
-    // Gestión de límites y saldos
+    // Gestión de límites y saldos - Métodos originales
     CuentaClienteResponse actualizarLimiteCredito(Long id, BigDecimal nuevoLimite);
     CuentaClienteResponse cargarSaldo(Long id, BigDecimal monto, String concepto, Long usuarioId);
     CuentaClienteResponse abonarSaldo(Long id, BigDecimal monto, String concepto, Long usuarioId);
+
+    // Gestión de límites y saldos - Métodos mejorados con trazabilidad
+    CuentaClienteResponse cargarSaldoConReferencia(Long id, BigDecimal monto, String concepto, Long usuarioId,
+                                                  TipoReferencia tipoReferencia, Long referenciaId);
+    CuentaClienteResponse abonarSaldoConReferencia(Long id, BigDecimal monto, String concepto, Long usuarioId,
+                                                  TipoReferencia tipoReferencia, Long referenciaId);
 
     // Gestión de estado
     CuentaClienteResponse cambiarEstado(Long id, EstadoCuenta nuevoEstado);

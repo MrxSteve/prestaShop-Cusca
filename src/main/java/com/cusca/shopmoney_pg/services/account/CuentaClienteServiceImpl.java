@@ -4,13 +4,13 @@ import com.cusca.shopmoney_pg.models.dto.request.CuentaClienteRequest;
 import com.cusca.shopmoney_pg.models.dto.request.update.UpdateCuentaClienteRequest;
 import com.cusca.shopmoney_pg.models.dto.response.CuentaClienteResponse;
 import com.cusca.shopmoney_pg.models.entities.CuentaClienteEntity;
-import com.cusca.shopmoney_pg.models.entities.MovimientoCuentaEntity;
 import com.cusca.shopmoney_pg.models.entities.UsuarioEntity;
 import com.cusca.shopmoney_pg.models.enums.EstadoCuenta;
 import com.cusca.shopmoney_pg.models.enums.TipoMovimiento;
+import com.cusca.shopmoney_pg.models.enums.TipoReferencia;
 import com.cusca.shopmoney_pg.repositories.CuentaClienteRepository;
-import com.cusca.shopmoney_pg.repositories.MovimientoCuentaRepository;
 import com.cusca.shopmoney_pg.repositories.UsuarioRepository;
+import com.cusca.shopmoney_pg.services.finance.IMovimientoCuentaService;
 import com.cusca.shopmoney_pg.utils.exceptions.InvalidAccountStateException;
 import com.cusca.shopmoney_pg.utils.exceptions.InvalidAmountException;
 import com.cusca.shopmoney_pg.utils.exceptions.InsufficientBalanceException;
@@ -26,7 +26,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -35,8 +34,8 @@ import java.util.Optional;
 public class CuentaClienteServiceImpl implements ICuentaClienteService {
     private final CuentaClienteRepository cuentaClienteRepository;
     private final UsuarioRepository usuarioRepository;
-    private final MovimientoCuentaRepository movimientoCuentaRepository;
     private final CuentaClienteMapper cuentaClienteMapper;
+    private final IMovimientoCuentaService movimientoCuentaService;
 
     @Override
     public CuentaClienteResponse crear(CuentaClienteRequest request) {
@@ -70,9 +69,9 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
 
         // Crear movimiento inicial si hay saldo inicial
         if (cuentaGuardada.getSaldoActual().compareTo(BigDecimal.ZERO) > 0) {
-            crearMovimiento(cuentaGuardada, TipoMovimiento.CARGO, "Saldo inicial",
+            movimientoCuentaService.crearMovimiento(cuentaGuardada.getId(), TipoMovimiento.CARGO, "Saldo inicial",
                     cuentaGuardada.getSaldoActual(), BigDecimal.ZERO, cuentaGuardada.getSaldoActual(),
-                    null, usuario.getId());
+                    TipoReferencia.AJUSTE, null, usuario.getId());
         }
 
         return cuentaClienteMapper.toResponse(cuentaGuardada);
@@ -208,16 +207,22 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
         CuentaClienteEntity cuentaActualizada = cuentaClienteRepository.save(cuenta);
 
         // Crear movimiento de ajuste de límite
-        crearMovimiento(cuenta, TipoMovimiento.AJUSTE,
+        movimientoCuentaService.crearMovimiento(cuenta.getId(), TipoMovimiento.AJUSTE,
                 String.format("Ajuste de límite de crédito de $%.2f a $%.2f", limiteAnterior, nuevoLimite),
                 BigDecimal.ZERO, cuenta.getSaldoActual(), cuenta.getSaldoActual(),
-                null, null); // Usuario ID se debería pasar desde el controller
+                TipoReferencia.AJUSTE, null, null); // Usuario ID se debería pasar desde el controller
 
         return cuentaClienteMapper.toResponse(cuentaActualizada);
     }
 
     @Override
     public CuentaClienteResponse cargarSaldo(Long id, BigDecimal monto, String concepto, Long usuarioId) {
+        return cargarSaldoConReferencia(id, monto, concepto, usuarioId, TipoReferencia.AJUSTE, null);
+    }
+
+    @Override
+    public CuentaClienteResponse cargarSaldoConReferencia(Long id, BigDecimal monto, String concepto, Long usuarioId,
+                                                         TipoReferencia tipoReferencia, Long referenciaId) {
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("El monto a cargar debe ser mayor que cero");
         }
@@ -229,15 +234,21 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
         cuenta.setSaldoActual(saldoNuevo);
         CuentaClienteEntity cuentaActualizada = cuentaClienteRepository.save(cuenta);
 
-        // Crear movimiento de cargo
-        crearMovimiento(cuenta, TipoMovimiento.CARGO, concepto, monto,
-                saldoAnterior, saldoNuevo, null, usuarioId);
+        // Crear movimiento de cargo CON referencia
+        movimientoCuentaService.crearMovimiento(cuenta.getId(), TipoMovimiento.CARGO, concepto, monto,
+                saldoAnterior, saldoNuevo, tipoReferencia, referenciaId, usuarioId);
 
         return cuentaClienteMapper.toResponse(cuentaActualizada);
     }
 
     @Override
     public CuentaClienteResponse abonarSaldo(Long id, BigDecimal monto, String concepto, Long usuarioId) {
+        return abonarSaldoConReferencia(id, monto, concepto, usuarioId, TipoReferencia.AJUSTE, null);
+    }
+
+    @Override
+    public CuentaClienteResponse abonarSaldoConReferencia(Long id, BigDecimal monto, String concepto, Long usuarioId,
+                                                         TipoReferencia tipoReferencia, Long referenciaId) {
         if (monto.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("El monto a abonar debe ser mayor que cero");
         }
@@ -254,9 +265,9 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
         cuenta.setSaldoActual(saldoNuevo);
         CuentaClienteEntity cuentaActualizada = cuentaClienteRepository.save(cuenta);
 
-        // Crear movimiento de abono
-        crearMovimiento(cuenta, TipoMovimiento.ABONO, concepto, monto,
-                saldoAnterior, saldoNuevo, null, usuarioId);
+        // Crear movimiento de abono CON referencia
+        movimientoCuentaService.crearMovimiento(cuenta.getId(), TipoMovimiento.ABONO, concepto, monto,
+                saldoAnterior, saldoNuevo, tipoReferencia, referenciaId, usuarioId);
 
         return cuentaClienteMapper.toResponse(cuentaActualizada);
     }
@@ -311,29 +322,5 @@ public class CuentaClienteServiceImpl implements ICuentaClienteService {
     public CuentaClienteEntity buscarEntidadPorUsuario(Long usuarioId) {
         return cuentaClienteRepository.findByUsuarioId(usuarioId)
                 .orElseThrow(() -> new ResourceNotFoundException("Cuenta no encontrada para usuario ID: " + usuarioId));
-    }
-
-
-    // Metodo auxiliar para crear movimientos de cuenta
-    private void crearMovimiento(CuentaClienteEntity cuenta, TipoMovimiento tipo, String concepto,
-                                 BigDecimal monto, BigDecimal saldoAnterior, BigDecimal saldoNuevo,
-                                 String referenciaTipo, Long usuarioId) {
-        MovimientoCuentaEntity movimiento = MovimientoCuentaEntity.builder()
-                .cuentaCliente(cuenta)
-                .tipoMovimiento(tipo)
-                .concepto(concepto)
-                .monto(monto)
-                .saldoAnterior(saldoAnterior)
-                .saldoNuevo(saldoNuevo)
-                .fechaMovimiento(LocalDateTime.now())
-                .build();
-
-        if (usuarioId != null) {
-            UsuarioEntity usuario = usuarioRepository.findById(usuarioId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + usuarioId));
-            movimiento.setUsuario(usuario);
-        }
-
-        movimientoCuentaRepository.save(movimiento);
     }
 }

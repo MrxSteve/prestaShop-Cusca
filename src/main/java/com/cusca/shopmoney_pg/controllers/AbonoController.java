@@ -39,9 +39,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear nuevo abono", description = "Permite crear un nuevo abono para una cuenta de cliente - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "201", description = "Abono creado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
-        @ApiResponse(responseCode = "404", description = "Cuenta de cliente no encontrada")
+            @ApiResponse(responseCode = "201", description = "Abono creado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos"),
+            @ApiResponse(responseCode = "404", description = "Cuenta de cliente no encontrada")
     })
     public ResponseEntity<AbonoResponse> crear(@Valid @RequestBody AbonoRequest request) {
         AbonoResponse response = abonoService.crear(request);
@@ -62,8 +62,8 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Obtener abono por ID", description = "Obtiene un abono específico por su ID - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Abono encontrado"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado")
+            @ApiResponse(responseCode = "200", description = "Abono encontrado"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado")
     })
     public ResponseEntity<AbonoResponse> obtenerPorId(@PathVariable Long id) {
         return abonoService.buscarPorId(id)
@@ -75,9 +75,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Actualizar abono", description = "Actualiza un abono existente (solo PENDIENTES) - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Abono actualizado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "No se puede modificar el abono en su estado actual"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado")
+            @ApiResponse(responseCode = "200", description = "Abono actualizado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "No se puede modificar el abono en su estado actual"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado")
     })
     public ResponseEntity<AbonoResponse> actualizar(
             @PathVariable Long id,
@@ -90,9 +90,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Eliminar abono", description = "Elimina un abono (solo RECHAZADOS o PENDIENTES) - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "204", description = "Abono eliminado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "No se pueden eliminar abonos aplicados"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado")
+            @ApiResponse(responseCode = "204", description = "Abono eliminado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "No se pueden eliminar abonos aplicados"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado")
     })
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         abonoService.eliminar(id);
@@ -176,9 +176,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Aplicar abono", description = "Aplica un abono pendiente a la cuenta del cliente - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Abono aplicado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "El abono no se puede aplicar en su estado actual"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado")
+            @ApiResponse(responseCode = "200", description = "Abono aplicado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "El abono no se puede aplicar en su estado actual"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado")
     })
     public ResponseEntity<AbonoResponse> aplicar(@PathVariable Long id) {
         AbonoResponse response = abonoService.aplicar(id);
@@ -197,9 +197,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Rechazar abono", description = "Rechaza un abono pendiente con motivo - Solo ADMIN")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Abono rechazado exitosamente"),
-        @ApiResponse(responseCode = "400", description = "El abono no se puede rechazar en su estado actual"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado")
+            @ApiResponse(responseCode = "200", description = "Abono rechazado exitosamente"),
+            @ApiResponse(responseCode = "400", description = "El abono no se puede rechazar en su estado actual"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado")
     })
     public ResponseEntity<AbonoResponse> rechazar(
             @PathVariable Long id,
@@ -286,9 +286,9 @@ public class AbonoController {
     @PreAuthorize("hasRole('CLIENTE')")
     @Operation(summary = "Ver detalle de mi abono", description = "Permite al cliente ver el detalle de un abono específico suyo")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Abono encontrado"),
-        @ApiResponse(responseCode = "404", description = "Abono no encontrado o no pertenece al cliente"),
-        @ApiResponse(responseCode = "403", description = "No tienes permiso para ver este abono")
+            @ApiResponse(responseCode = "200", description = "Abono encontrado"),
+            @ApiResponse(responseCode = "404", description = "Abono no encontrado o no pertenece al cliente"),
+            @ApiResponse(responseCode = "403", description = "No tienes permiso para ver este abono")
     })
     public ResponseEntity<AbonoResponse> verMiAbono(
             @PathVariable Long id,

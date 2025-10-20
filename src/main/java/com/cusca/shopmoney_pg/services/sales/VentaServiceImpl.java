@@ -9,6 +9,7 @@ import com.cusca.shopmoney_pg.models.entities.DetalleVentaEntity;
 import com.cusca.shopmoney_pg.models.entities.ProductoEntity;
 import com.cusca.shopmoney_pg.models.entities.VentaEntity;
 import com.cusca.shopmoney_pg.models.enums.EstadoVenta;
+import com.cusca.shopmoney_pg.models.enums.TipoReferencia;
 import com.cusca.shopmoney_pg.models.enums.TipoVenta;
 import com.cusca.shopmoney_pg.repositories.*;
 import com.cusca.shopmoney_pg.services.account.ICuentaClienteService;
@@ -78,9 +79,10 @@ public class VentaServiceImpl implements IVentaService{
         // Procesar detalles de venta
         procesarDetallesVenta(ventaGuardada, request.getDetalleVentas());
 
-        // Cargar el monto a la cuenta del cliente usando el ID del usuario de la cuenta
-        cuentaClienteService.cargarSaldo(cuenta.getId(), totalCalculado,
-                "Venta #" + ventaGuardada.getId(), cuenta.getUsuario().getId());
+        // Cargar el monto a la cuenta del cliente usando el ID de la venta como referencia
+        cuentaClienteService.cargarSaldoConReferencia(cuenta.getId(), totalCalculado,
+                "Venta #" + ventaGuardada.getId(), cuenta.getUsuario().getId(),
+                TipoReferencia.VENTA, ventaGuardada.getId());
 
         return ventaMapper.toResponse(ventaGuardada);
     }
@@ -269,10 +271,12 @@ public class VentaServiceImpl implements IVentaService{
     public VentaResponse marcarComoPagada(Long id) {
         VentaEntity venta = buscarEntidadPorId(id);
 
-        // Si es venta a crédito, crear abono automático
+        // Si es venta a crédito, crear abono automático con referencia a la venta
         if (venta.getTipoVenta() == TipoVenta.CREDITO && venta.getCuentaCliente() != null) {
-            cuentaClienteService.abonarSaldo(venta.getCuentaCliente().getId(),
-                    venta.getTotal(), "Pago venta #" + venta.getId(), venta.getCuentaCliente().getUsuario().getId());
+            cuentaClienteService.abonarSaldoConReferencia(venta.getCuentaCliente().getId(),
+                    venta.getTotal(), "Pago venta #" + venta.getId(),
+                    venta.getCuentaCliente().getUsuario().getId(),
+                    TipoReferencia.VENTA, venta.getId());
         }
 
         return cambiarEstado(id, EstadoVenta.PAGADA);
@@ -287,13 +291,15 @@ public class VentaServiceImpl implements IVentaService{
     public VentaResponse cancelar(Long id) {
         VentaEntity venta = buscarEntidadPorId(id);
 
-        // Si es venta a crédito pendiente, revertir el cargo
+        // Si es venta a crédito pendiente, revertir el cargo con referencia a la venta
         if (venta.getTipoVenta() == TipoVenta.CREDITO &&
                 venta.getCuentaCliente() != null &&
                 venta.getEstado() == EstadoVenta.PENDIENTE) {
 
-            cuentaClienteService.abonarSaldo(venta.getCuentaCliente().getId(),
-                    venta.getTotal(), "Cancelación venta #" + venta.getId(), venta.getCuentaCliente().getUsuario().getId());
+            cuentaClienteService.abonarSaldoConReferencia(venta.getCuentaCliente().getId(),
+                    venta.getTotal(), "Cancelación venta #" + venta.getId(),
+                    venta.getCuentaCliente().getUsuario().getId(),
+                    TipoReferencia.VENTA, venta.getId());
         }
 
         return cambiarEstado(id, EstadoVenta.CANCELADA);

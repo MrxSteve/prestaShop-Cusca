@@ -2,6 +2,7 @@ package com.cusca.shopmoney_pg.repositories;
 
 import com.cusca.shopmoney_pg.models.entities.MovimientoCuentaEntity;
 import com.cusca.shopmoney_pg.models.enums.TipoMovimiento;
+import com.cusca.shopmoney_pg.models.enums.TipoReferencia;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -30,4 +31,7 @@ public interface MovimientoCuentaRepository extends JpaRepository<MovimientoCuen
                                                       @Param("fechaInicio") LocalDateTime fechaInicio,
                                                       @Param("fechaFin") LocalDateTime fechaFin,
                                                       Pageable pageable);
+
+    // Movimientos por referencia
+    Page<MovimientoCuentaEntity> findByReferenciaTipoAndReferenciaId(TipoReferencia referenciaTipo, Long referenciaId, Pageable pageable);
 }

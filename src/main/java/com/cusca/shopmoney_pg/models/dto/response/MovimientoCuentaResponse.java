@@ -14,15 +14,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class MovimientoCuentaResponse {
     private Long id;
-    private CuentaClienteResponse cuentaCliente;
+    private Long cuentaClienteId;
     private TipoMovimiento tipoMovimiento;
     private String concepto;
     private BigDecimal monto;
     private BigDecimal saldoAnterior;
     private BigDecimal saldoNuevo;
     private TipoReferencia referenciaTipo;
+    private Long referenciaId;
     private LocalDateTime fechaMovimiento;
-    private UsuarioResponse usuario;
+    private Long usuarioId;
 
     private LocalDateTime createdAt;
 }
