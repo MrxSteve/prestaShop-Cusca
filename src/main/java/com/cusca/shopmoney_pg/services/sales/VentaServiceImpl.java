@@ -42,6 +42,7 @@ public class VentaServiceImpl implements IVentaService{
     private final VentaMapper ventaMapper;
     private final DetalleVentaMapper detalleVentaMapper;
     private final NotificacionServiceImpl notificacionService;
+    private final DetalleVentaRepository detalleVentaRepository;
 
     @Override
     public VentaResponse crear(VentaRequest request) {
@@ -450,8 +451,19 @@ public class VentaServiceImpl implements IVentaService{
             detalles.add(detalle);
         }
 
-        venta.setDetalleVentas(detalles);
+        // Guardar todos los detalles en la base de datos para que obtengan sus IDs
+        List<DetalleVentaEntity> detallesGuardados = new ArrayList<>();
+        for (DetalleVentaEntity detalle : detalles) {
+            DetalleVentaEntity detalleGuardado = detalleVentaRepository.save(detalle);
+            detallesGuardados.add(detalleGuardado);
+        }
+
+        // Actualizar la venta con los detalles guardados (que ya tienen IDs)
+        venta.setDetalleVentas(detallesGuardados);
         venta.setSubtotal(subtotalVenta);
+
+        // Guardar la venta actualizada con los detalles
+        ventaRepository.save(venta);
     }
 
     private void validarTransicionEstado(EstadoVenta estadoActual, EstadoVenta nuevoEstado) {
