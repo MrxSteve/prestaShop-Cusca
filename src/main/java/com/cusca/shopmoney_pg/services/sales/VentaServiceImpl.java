@@ -19,6 +19,7 @@ import com.cusca.shopmoney_pg.utils.exceptions.InvalidSaleTypeException;
 import com.cusca.shopmoney_pg.utils.exceptions.ResourceNotFoundException;
 import com.cusca.shopmoney_pg.utils.mappers.DetalleVentaMapper;
 import com.cusca.shopmoney_pg.utils.mappers.VentaMapper;
+import com.cusca.shopmoney_pg.services.notification.NotificacionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,6 +41,7 @@ public class VentaServiceImpl implements IVentaService{
     private final ICuentaClienteService cuentaClienteService;
     private final VentaMapper ventaMapper;
     private final DetalleVentaMapper detalleVentaMapper;
+    private final NotificacionServiceImpl notificacionService;
 
     @Override
     public VentaResponse crear(VentaRequest request) {
@@ -84,6 +86,9 @@ public class VentaServiceImpl implements IVentaService{
                 "Venta #" + ventaGuardada.getId(), cuenta.getUsuario().getId(),
                 TipoReferencia.VENTA, ventaGuardada.getId());
 
+        // FACTURA POR CORREO (VENTA A CRÉDITO)
+        notificacionService.enviarFacturaVenta(ventaGuardada);
+
         return ventaMapper.toResponse(ventaGuardada);
     }
 
@@ -111,6 +116,11 @@ public class VentaServiceImpl implements IVentaService{
 
         // Procesar detalles de venta
         procesarDetallesVenta(ventaGuardada, request.getDetalleVentas());
+
+        // FACTURA POR CORREO (VENTA DE CONTADO - SOLO SI TIENE CUENTA)
+        if (cuenta != null) { // Solo enviar correo si el cliente tiene cuenta registrada
+            notificacionService.enviarFacturaVenta(ventaGuardada);
+        }
 
         return ventaMapper.toResponse(ventaGuardada);
     }
@@ -155,10 +165,6 @@ public class VentaServiceImpl implements IVentaService{
         return ventaRepository.findAll(pageable)
                 .map(ventaMapper::toResponse);
     }
-
-    // ===============================
-    // BÚSQUEDAS ESPECIALIZADAS
-    // ===============================
 
     @Override
     @Transactional(readOnly = true)

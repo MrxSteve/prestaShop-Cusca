@@ -14,6 +14,7 @@ import com.cusca.shopmoney_pg.services.account.ICuentaClienteService;
 import com.cusca.shopmoney_pg.utils.exceptions.InvalidSaleStateException;
 import com.cusca.shopmoney_pg.utils.exceptions.ResourceNotFoundException;
 import com.cusca.shopmoney_pg.utils.mappers.AbonoMapper;
+import com.cusca.shopmoney_pg.services.notification.NotificacionServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,6 +34,7 @@ public class AbonoServiceImpl implements IAbonoService {
     private final CuentaClienteRepository cuentaClienteRepository;
     private final ICuentaClienteService cuentaClienteService;
     private final AbonoMapper abonoMapper;
+    private final NotificacionServiceImpl notificacionService;
 
     @Override
     public AbonoResponse crear(AbonoRequest request) {
@@ -57,6 +59,13 @@ public class AbonoServiceImpl implements IAbonoService {
             cuentaClienteService.abonarSaldoConReferencia(cuentaCliente.getId(), abono.getMonto(),
                     "Abono #" + abonoGuardado.getId(), cuentaCliente.getUsuario().getId(),
                     TipoReferencia.ABONO, abonoGuardado.getId());
+
+            // NOTIFICACIÓN DE ABONO POR CORREO
+            notificacionService.enviarNotificacionAbono(
+                    cuentaCliente.getUsuario().getId(),
+                    "Pago recibido - Abono #" + abonoGuardado.getId(),
+                    abonoGuardado.getMonto().toString()
+            );
         }
 
         return abonoMapper.toResponse(abonoGuardado);
@@ -206,6 +215,13 @@ public class AbonoServiceImpl implements IAbonoService {
         cuentaClienteService.abonarSaldoConReferencia(abono.getCuentaCliente().getId(), abono.getMonto(),
                 "Aplicación abono #" + abono.getId(), abono.getCuentaCliente().getUsuario().getId(),
                 TipoReferencia.ABONO, abono.getId());
+
+        // OTIFICACIÓN DE ABONO POR CORREO (APLICACIÓN MANUAL)
+        notificacionService.enviarNotificacionAbono(
+                abono.getCuentaCliente().getUsuario().getId(),
+                "Abono aplicado - Abono #" + abono.getId(),
+                abono.getMonto().toString()
+        );
 
         return cambiarEstado(id, EstadoAbono.APLICADO);
     }
