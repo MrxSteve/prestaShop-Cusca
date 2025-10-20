@@ -48,10 +48,19 @@ public class EmailService {
 
             // Enviar correo
             mailSender.send(message);
-            log.info("Correo enviado exitosamente a: {}", destinatario);
+            log.info("Correo enviado exitosamente a: {} con asunto: {}", destinatario, asunto);
 
+        } catch (org.springframework.mail.MailAuthenticationException e) {
+            log.error("Error de autenticación SMTP al enviar correo a {}: {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error de autenticación en servidor de correo", e);
+        } catch (org.springframework.mail.MailSendException e) {
+            log.error("Error enviando correo a {} (posible problema con el destinatario): {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error enviando correo - problema con destinatario", e);
+        } catch (org.springframework.mail.MailException e) {
+            log.error("Error general de correo al enviar a {}: {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error del sistema de correo", e);
         } catch (Exception e) {
-            log.error("Error enviando correo a {}: {}", destinatario, e.getMessage(), e);
+            log.error("Error inesperado enviando correo a {}: {}", destinatario, e.getMessage(), e);
             throw new RuntimeException("Error enviando correo electrónico", e);
         }
     }
@@ -70,10 +79,19 @@ public class EmailService {
             helper.setText(mensaje, false);
 
             mailSender.send(message);
-            log.info("Correo simple enviado exitosamente a: {}", destinatario);
+            log.info("Correo simple enviado exitosamente a: {} con asunto: {}", destinatario, asunto);
 
+        } catch (org.springframework.mail.MailAuthenticationException e) {
+            log.error("Error de autenticación SMTP al enviar correo simple a {}: {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error de autenticación en servidor de correo", e);
+        } catch (org.springframework.mail.MailSendException e) {
+            log.error("Error enviando correo simple a {} (posible problema con el destinatario): {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error enviando correo - problema con destinatario", e);
+        } catch (org.springframework.mail.MailException e) {
+            log.error("Error general de correo al enviar simple a {}: {}", destinatario, e.getMessage());
+            throw new RuntimeException("Error del sistema de correo", e);
         } catch (Exception e) {
-            log.error("Error enviando correo simple a {}: {}", destinatario, e.getMessage(), e);
+            log.error("Error inesperado enviando correo simple a {}: {}", destinatario, e.getMessage(), e);
             throw new RuntimeException("Error enviando correo electrónico", e);
         }
     }

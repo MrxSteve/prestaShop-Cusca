@@ -42,6 +42,7 @@ public class NotificacionServiceImpl implements INotificacionService {
             }
 
             UsuarioEntity usuario = venta.getCuentaCliente().getUsuario();
+            log.info("Iniciando envío de factura para venta ID: {} a usuario: {}", venta.getId(), usuario.getEmail());
 
             // Crear variables para el template de la factura
             Map<String, Object> variables = new HashMap<>();
@@ -81,10 +82,21 @@ public class NotificacionServiceImpl implements INotificacionService {
                 guardarNotificacionCargo(usuario, venta);
             }
 
-            log.info("Factura enviada por correo para venta ID: {} - Usuario: {}", venta.getId(), usuario.getEmail());
+            log.info("Factura enviada exitosamente por correo para venta ID: {} - Usuario: {}", venta.getId(), usuario.getEmail());
 
+        } catch (RuntimeException e) {
+            // Errores específicos del servicio de email
+            log.error("Error específico enviando factura por correo para venta ID {}: {}", venta.getId(), e.getMessage());
+
+            // Analizar tipo de error para dar mejor información
+            if (e.getMessage().contains("autenticación")) {
+                log.error("Problema de configuración SMTP - revisar credenciales de correo");
+            } else if (e.getMessage().contains("destinatario")) {
+                log.error("Problema con el correo destinatario: {} - puede ser rechazado por el servidor",
+                    venta.getCuentaCliente().getUsuario().getEmail());
+            }
         } catch (Exception e) {
-            log.error("Error enviando factura por correo para venta ID {}: {}", venta.getId(), e.getMessage());
+            log.error("Error inesperado enviando factura por correo para venta ID {}: {}", venta.getId(), e.getMessage(), e);
         }
     }
 
