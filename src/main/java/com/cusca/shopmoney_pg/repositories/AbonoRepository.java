@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -30,18 +31,13 @@ public interface AbonoRepository extends JpaRepository<AbonoEntity, Long> {
     // Abonos por rango de fechas
     Page<AbonoEntity > findByFechaAbonoBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
 
+    // Abonos por rango de monto
+    Page<AbonoEntity> findByMontoBetween(BigDecimal min, BigDecimal max, Pageable pageable);
+
     // Abonos por cliente y rango de fechas
     @Query("SELECT a FROM AbonoEntity a WHERE a.cuentaCliente.id = :clienteId AND a.fechaAbono BETWEEN :fechaInicio AND :fechaFin")
     Page<AbonoEntity > findByClienteAndFechaRange(@Param("clienteId") Long clienteId,
                                            @Param("fechaInicio") LocalDateTime fechaInicio,
                                            @Param("fechaFin") LocalDateTime fechaFin,
                                            Pageable pageable);
-
-    // Abonos del día
-    @Query("SELECT a FROM AbonoEntity a WHERE DATE(a.fechaAbono) = CURRENT_DATE")
-    Page<AbonoEntity > findAbonosDelDia(Pageable pageable);
-
-    // Abonos del mes actual
-    @Query("SELECT a FROM AbonoEntity a WHERE YEAR(a.fechaAbono) = YEAR(CURRENT_DATE) AND MONTH(a.fechaAbono) = MONTH(CURRENT_DATE)")
-    Page<AbonoEntity > findAbonosDelMes(Pageable pageable);
 }

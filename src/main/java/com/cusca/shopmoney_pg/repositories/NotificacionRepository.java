@@ -25,12 +25,4 @@ public interface NotificacionRepository extends JpaRepository<NotificacionEntity
 
     // Notificaciones por rango de fechas
     Page<NotificacionEntity> findByFechaEnvioBetween(LocalDateTime fechaInicio, LocalDateTime fechaFin, Pageable pageable);
-
-    // Notificaciones del día
-    @Query("SELECT n FROM NotificacionEntity n WHERE DATE(n.fechaEnvio) = CURRENT_DATE")
-    Page<NotificacionEntity> findNotificacionesDelDia(Pageable pageable);
-
-    // Notificaciones por email del usuario
-    @Query("SELECT n FROM NotificacionEntity n WHERE n.usuario.email = :email ORDER BY n.fechaEnvio DESC")
-    Page<NotificacionEntity> findByUsuarioEmail(@Param("email") String email, Pageable pageable);
 }

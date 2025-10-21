@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 @Getter @Setter
@@ -19,16 +18,6 @@ public class VentaRequest {
 
     @Size(max = 255, message = "El nombre del cliente ocasional no debe exceder 255 caracteres")
     private String clienteOcasional;
-
-    @NotNull(message = "El subtotal es requerido")
-    @DecimalMin(value = "0.01", message = "El subtotal debe ser mayor a 0")
-    @Positive(message = "El subtotal debe ser un valor positivo")
-    private BigDecimal subtotal;
-
-    @NotNull(message = "El total es requerido")
-    @DecimalMin(value = "0.01", message = "El total debe ser mayor a 0")
-    @Positive(message = "El total debe ser un valor positivo")
-    private BigDecimal total;
 
     @NotNull(message = "El tipo de venta es requerido")
     private TipoVenta tipoVenta;

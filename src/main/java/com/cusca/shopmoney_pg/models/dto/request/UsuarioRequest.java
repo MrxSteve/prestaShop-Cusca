@@ -1,8 +1,8 @@
 package com.cusca.shopmoney_pg.models.dto.request;
 
 import com.cusca.shopmoney_pg.models.enums.EstadoUsuario;
-import com.cusca.shopmoney_pg.utils.validations.ExistsByDUI;
-import com.cusca.shopmoney_pg.utils.validations.ExistsByEmail;
+import com.cusca.shopmoney_pg.utils.validations.user.ExistsByDUI;
+import com.cusca.shopmoney_pg.utils.validations.user.ExistsByEmail;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Past;

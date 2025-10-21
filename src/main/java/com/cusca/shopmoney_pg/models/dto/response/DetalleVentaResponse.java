@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor @AllArgsConstructor
 public class DetalleVentaResponse {
     private Long id;
-    private ProductoResponse producto;
+    private String nombreProducto; // Solo el nombre en lugar del objeto completo
     private Integer cantidad;
     private BigDecimal precioUnitario;
     private BigDecimal subtotal;

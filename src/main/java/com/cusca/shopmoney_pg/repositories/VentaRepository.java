@@ -42,14 +42,6 @@ public interface VentaRepository extends JpaRepository<VentaEntity, Long> {
                                            @Param("fechaFin") LocalDateTime fechaFin,
                                            Pageable pageable);
 
-    // Ventas del día
-    @Query("SELECT v FROM VentaEntity v WHERE DATE(v.fechaVenta) = CURRENT_DATE")
-    Page<VentaEntity> findVentasDelDia(Pageable pageable);
-
-    // Ventas del mes actual
-    @Query("SELECT v FROM VentaEntity v WHERE YEAR(v.fechaVenta) = YEAR(CURRENT_DATE) AND MONTH(v.fechaVenta) = MONTH(CURRENT_DATE)")
-    Page<VentaEntity> findVentasDelMes(Pageable pageable);
-
     // Ventas por cliente
     @Query("SELECT COUNT(v) FROM VentaEntity v WHERE v.cuentaCliente.id = :clienteId")
     long countVentasByCliente(@Param("clienteId") Long clienteId);

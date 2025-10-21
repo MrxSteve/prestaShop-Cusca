@@ -45,6 +45,9 @@ public class MovimientoCuentaEntity {
     @Column(name = "referencia_tipo")
     private TipoReferencia referenciaTipo;
 
+    @Column(name = "referencia_id")
+    private Long referenciaId;
+
     @CreationTimestamp
     @Column(name = "fecha_movimiento")
     private LocalDateTime fechaMovimiento;

@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor @AllArgsConstructor
 public class AbonoResponse {
     private Long id;
-    private CuentaClienteResponse cuentaCliente;
+    private Long cuentaClienteId;
     private BigDecimal monto;
     private LocalDateTime fechaAbono;
     private MetodoPago metodoPago;

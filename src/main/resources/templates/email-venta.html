@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factura de Venta - CuscaMoney</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 700px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 8px 8px 0 0;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 8px 8px;
+            border: 1px solid #ddd;
+        }
+        .factura-info {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .cliente-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .productos-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+        }
+        .productos-table th, .productos-table td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        .productos-table th {
+            background: #3498db;
+            color: white;
+        }
+        .total-section {
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            margin-top: 20px;
+            text-align: right;
+        }
+        .total-final {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+            border-top: 2px solid #3498db;
+            padding-top: 10px;
+            margin-top: 10px;
+        }
+        .tipo-venta {
+            display: inline-block;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            color: white;
+            margin-top: 10px;
+        }
+        .credito { background: #e74c3c; }
+        .contado { background: #27ae60; }
+        .footer {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>CuscaMoney</h1>
+        <p>Factura de Venta</p>
+    </div>
+
+    <div class="content">
+        <div class="factura-info">
+            <h3>Factura #<span th:text="${numeroFactura}">0001</span></h3>
+            <p><strong>Fecha:</strong> <span th:text="${fechaVenta}">01/01/2024</span></p>
+            <p><strong>Vendedor:</strong> <span th:text="${nombreVendedor}">Sistema</span></p>
+
+            <div th:if="${tipoVenta} == 'CREDITO'">
+                <span class="tipo-venta credito">VENTA A CREDITO</span>
+            </div>
+            <div th:if="${tipoVenta} == 'CONTADO'">
+                <span class="tipo-venta contado">VENTA DE CONTADO</span>
+            </div>
+        </div>
+
+        <div class="cliente-info">
+            <h3>Información del Cliente</h3>
+            <p><strong>Nombre:</strong> <span th:text="${nombreCliente}">Cliente</span></p>
+            <p><strong>Email:</strong> <span th:text="${emailCliente}">cliente@email.com</span></p>
+            <div th:if="${tipoVenta} == 'CREDITO'">
+                <p><strong>Cuenta de Crédito:</strong> #<span th:text="${numeroCuenta}">000</span></p>
+            </div>
+        </div>
+
+        <table class="productos-table">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unit.</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="producto : ${productos}">
+                    <td th:text="${producto.nombre}">Producto</td>
+                    <td th:text="${producto.cantidad}">1</td>
+                    <td>$<span th:text="${producto.precio}">0.00</span></td>
+                    <td>$<span th:text="${producto.subtotal}">0.00</span></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="total-section">
+            <div class="total-final">
+                <strong>Total: $<span th:text="${total}">0.00</span></strong>
+            </div>
+
+            <div th:if="${tipoVenta} == 'CREDITO'" style="margin-top: 15px; color: #e74c3c;">
+                <p><strong>⚠️ Este monto ha sido agregado a tu cuenta de crédito</strong></p>
+            </div>
+            <div th:if="${tipoVenta} == 'CONTADO'" style="margin-top: 15px; color: #27ae60;">
+                <p><strong>✅ Pago recibido - Transacción completada</strong></p>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>¡Gracias por tu compra!</p>
+            <p>Este es un correo automático, por favor no respondas a este mensaje.</p>
+            <p>© 2025 CuscaMoney - Todos los derechos reservados</p>
+        </div>
+    </div>
+</body>
+</html>
