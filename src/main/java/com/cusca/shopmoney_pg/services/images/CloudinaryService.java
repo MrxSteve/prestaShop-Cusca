@@ -19,9 +19,14 @@ public class CloudinaryService {
 
     public String uploadImage(MultipartFile file) {
         try {
-            // Validar que sea una imagen
+            // Validaciones de seguridad
             if (!isValidImageFile(file)) {
                 throw new RuntimeException("El archivo debe ser una imagen válida (JPG, JPEG, PNG, GIF, WEBP, BMP)");
+            }
+
+            // Validar tamaño máximo (5MB)
+            if (file.getSize() > 5 * 1024 * 1024) {
+                throw new RuntimeException("El archivo no puede superar los 5MB");
             }
 
             Map<String, Object> uploadParams = new HashMap<>();
@@ -32,6 +37,8 @@ public class CloudinaryService {
             uploadParams.put("crop", "limit");
             uploadParams.put("quality", "auto");
             uploadParams.put("fetch_format", "auto"); // Cloudinary elige el mejor formato (WebP, AVIF, etc.)
+            uploadParams.put("public_id", generateSafePublicId()); // ID único y seguro
+            uploadParams.put("overwrite", false); // No sobrescribir archivos existentes
 
             Map<?, ?> uploadResult = cloudinary.uploader().upload(file.getBytes(), uploadParams);
             return (String) uploadResult.get("secure_url");
@@ -40,6 +47,10 @@ public class CloudinaryService {
             log.error("Error uploading image to Cloudinary: ", e);
             throw new RuntimeException("Error al subir la imagen: " + e.getMessage());
         }
+    }
+
+    private String generateSafePublicId() {
+        return "prod_" + System.currentTimeMillis() + "_" + (int)(Math.random() * 1000);
     }
 
     private boolean isValidImageFile(MultipartFile file) {
