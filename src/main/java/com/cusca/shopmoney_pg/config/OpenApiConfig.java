@@ -28,6 +28,9 @@ public class OpenApiConfig {
                         .version("v1.0.0"))
                 .servers(List.of(
                         new Server()
+                                .url("https://presto-shop.duckdns.org")
+                                .description("Servidor de Producción"),
+                        new Server()
                                 .url("http://localhost:" + serverPort)
                                 .description("Servidor de Desarrollo")))
                 .addSecurityItem(new SecurityRequirement()
