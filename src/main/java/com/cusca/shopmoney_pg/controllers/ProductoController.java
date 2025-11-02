@@ -1,7 +1,9 @@
 package com.cusca.shopmoney_pg.controllers;
 
+import com.cusca.shopmoney_pg.models.dto.request.ProductoImagenRequest;
 import com.cusca.shopmoney_pg.models.dto.request.ProductoRequest;
 import com.cusca.shopmoney_pg.models.dto.request.update.UpdateProductoRequest;
+import com.cusca.shopmoney_pg.models.dto.request.update.UpdateProductoImagen;
 import com.cusca.shopmoney_pg.models.dto.response.ProductoResponse;
 import com.cusca.shopmoney_pg.models.enums.EstadoProducto;
 import com.cusca.shopmoney_pg.services.catalog.IProductoService;
@@ -16,9 +18,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.math.BigDecimal;
 
@@ -149,5 +156,54 @@ public class ProductoController {
     public ResponseEntity<Void> eliminar(@PathVariable Long id) {
         productoService.eliminar(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value = "/imagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Crear producto con imagen")
+    public ResponseEntity<ProductoResponse> crearConImagen(
+            @RequestParam("nombre") @NotBlank String nombre,
+            @RequestParam("descripcion") @NotBlank String descripcion,
+            @RequestParam("precioUnitario") @DecimalMin("0.01") BigDecimal precioUnitario,
+            @RequestParam("categoriaId") @NotNull Long categoriaId,
+            @RequestParam("estado") EstadoProducto estado,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+
+        // Crear el request object
+        ProductoImagenRequest request = new ProductoImagenRequest();
+        request.setNombre(nombre);
+        request.setDescripcion(descripcion);
+        request.setPrecioUnitario(precioUnitario);
+        request.setCategoriaId(categoriaId);
+        request.setEstado(estado);
+
+        ProductoResponse response = productoService.crearConImagen(request, imagen);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @PutMapping(value = "/{id}/imagen", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualizar producto con imagen")
+    public ResponseEntity<ProductoResponse> actualizarConImagen(
+            @PathVariable Long id,
+            @RequestParam(value = "nombre", required = false) String nombre,
+            @RequestParam(value = "descripcion", required = false) String descripcion,
+            @RequestParam(value = "precioUnitario", required = false) BigDecimal precioUnitario,
+            @RequestParam(value = "categoriaId", required = false) Long categoriaId,
+            @RequestParam(value = "estado", required = false) String estado,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+
+        // Crear el request object para imagen
+        UpdateProductoImagen request = new UpdateProductoImagen();
+        request.setNombre(nombre);
+        request.setDescripcion(descripcion);
+        request.setPrecioUnitario(precioUnitario);
+        request.setCategoriaId(categoriaId);
+        if (estado != null) {
+            request.setEstado(EstadoProducto.valueOf(estado.toUpperCase()));
+        }
+
+        ProductoResponse response = productoService.actualizarConImagen(id, request, imagen);
+        return ResponseEntity.ok(response);
     }
 }
